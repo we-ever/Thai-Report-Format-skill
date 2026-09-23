@@ -1,7 +1,7 @@
 """Copy the retained report example; optionally activate automatic caption numbering."""
 import argparse
 from pathlib import Path
-import shutil
+from apply_toc_format import apply_parts
 from zipfile import ZipFile, ZIP_DEFLATED
 from lxml import etree as E
 W='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
@@ -10,10 +10,8 @@ def create(output,number_captions=False):
  target=Path(output).expanduser().resolve()
  if target.exists():raise FileExistsError(f'Output already exists: {target}')
  target.parent.mkdir(parents=True,exist_ok=True)
- if not number_captions:
-  with source.open('rb') as src,target.open('xb') as dst:shutil.copyfileobj(src,dst)
-  return 0
  with ZipFile(source) as z:parts={n:z.read(n) for n in z.namelist()}
+ apply_parts(parts)
  root=E.fromstring(parts['word/document.xml']);stack=[];changed=0
  for node in root.iter():
   if node.tag==W+'fldChar':
@@ -21,7 +19,7 @@ def create(output,number_captions=False):
    if kind=='begin':stack.append([node,''])
    elif kind=='separate' and stack:
     start,code=stack[-1]
-    if code.strip().startswith('SEQ '):
+    if number_captions and code.strip().startswith('SEQ '):
      start.attrib.pop(W+'fldLock',None);start.set(W+'dirty','true');changed+=1
    elif kind=='end' and stack:stack.pop()
   elif node.tag==W+'instrText' and stack:stack[-1][1]+=node.text or ''

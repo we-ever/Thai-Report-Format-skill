@@ -39,3 +39,11 @@ $artifact-template-thai-report-format สร้างรายงานเรื
 ใช้ Codex ที่รองรับ skills และเครื่องมือสร้างเอกสาร พร้อมฟอนต์ TH Sarabun New การใช้สคริปต์ต้องมี Python และ lxml ควรอัปเดตฟิลด์และตรวจการจัดหน้าใน Microsoft Word ก่อนส่งรายงาน
 
 ตัวอย่างคงเลขภาพและตารางเป็น xx เมื่อสร้างรายงานจริงให้ปลดล็อกฟิลด์ SEQ หรือใช้ `new_report.py --number-captions` แล้วอัปเดตสารบัญใน Word
+
+## ค่าเริ่มต้นสารบัญและการอัปเดต
+
+Table of Contents ใช้ Formats: From template และ Show Levels: 3 โดย TOC1 มี Before text 0 นิ้ว / Hanging 0.6 นิ้ว, TOC2 มี Before text 0.6 นิ้ว / Hanging 0.4 นิ้ว และ TOC3 มี Before text 1 นิ้ว / Hanging 0.5 นิ้ว ทุกระดับมี After text 0 นิ้ว, Spacing Before/After 0 pt และ Line spacing Single
+
+ตัวสร้าง `new_report.py` ใช้ค่าเหล่านี้กับสำเนารายงานโดยอัตโนมัติ ค่าแม่แบบด้านอื่นยังคงเดิม ส่วนไฟล์ Word อ้างอิงที่ดาวน์โหลดโดยตรงยังเป็นตัวอย่างเดิม หากต้องการปรับสารบัญของเอกสารที่มีอยู่ ใช้ `scripts/apply_toc_format.py --input input.docx --output output.docx` แล้วอัปเดตสารบัญใน Word
+
+ผู้ที่ติดตั้งไว้แล้วให้ดาวน์โหลดเวอร์ชันล่าสุด สำรอง skill เดิมหากมีการปรับแต่ง แล้วแทนที่โฟลเดอร์ `artifact-template-thai-report-format` ทั้งโฟลเดอร์ในตำแหน่งติดตั้ง ไม่ต้องถอนการติดตั้งก่อน สำเนาที่ติดตั้งไว้ไม่ได้อัปเดตตาม GitHub อัตโนมัติ
