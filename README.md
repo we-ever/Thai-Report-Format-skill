@@ -42,7 +42,7 @@ $artifact-template-thai-report-format สร้างรายงานเรื
 
 ## ค่าเริ่มต้นสารบัญและการอัปเดต
 
-Table of Contents ใช้ Formats: From template และ Show Levels: 3 โดย TOC1 มี Before text 0 นิ้ว / Hanging 0.6 นิ้ว, TOC2 มี Before text 0.6 นิ้ว / Hanging 0.4 นิ้ว และ TOC3 มี Before text 1 นิ้ว / Hanging 0.5 นิ้ว ทุกระดับมี After text 0 นิ้ว, Spacing Before/After 0 pt และ Line spacing Single
+Table of Contents ใช้ Formats: From template และ Show Levels: 3 โดย TOC1 มี Before text 0 นิ้ว / Hanging 0.6 นิ้ว, TOC2 มี Before text 0.6 นิ้ว / Hanging 0.4 นิ้ว และ TOC3 มี Before text 1 นิ้ว / Hanging 0.5 นิ้ว ทุกระดับมี After text 0 นิ้ว, Spacing Before 0 pt / After 6 pt และ Line spacing Single
 
 ตัวสร้าง `new_report.py` ใช้ค่าเหล่านี้กับสำเนารายงานโดยอัตโนมัติ ค่าแม่แบบด้านอื่นยังคงเดิม ส่วนไฟล์ Word อ้างอิงที่ดาวน์โหลดโดยตรงยังเป็นตัวอย่างเดิม หากต้องการปรับสารบัญของเอกสารที่มีอยู่ ใช้ `scripts/apply_toc_format.py --input input.docx --output output.docx` แล้วอัปเดตสารบัญใน Word
 
@@ -50,10 +50,12 @@ Table of Contents ใช้ Formats: From template และ Show Levels: 3 โ�
 
 ## ค่าเริ่มต้นการจัดข้อความและตาราง
 
-เนื้อหาและข้อความในตารางใช้ Align Left ไม่ใช้ Distributed หรือ Thai Distributed ตั้ง Character Spacing เป็น Normal, Scale 100%, Spacing 0 pt และ Position Normal หัวข้อและคำบรรยายภาพคงการจัดแนวตามแม่แบบ
+ทุกย่อหน้ารวมสารบัญใช้ Spacing After 6 pt หัวตารางทุกเซลล์เป็นตัวหนาและกึ่งกลางแนวนอน ทุกเซลล์จัดข้อความชิดบน (Vertical alignment: Top) เนื้อหาและเซลล์ข้อมูลใช้ Align Left ไม่ใช้ Distributed หรือ Thai Distributed ตั้ง Character Spacing เป็น Normal, Scale 100%, Spacing 0 pt และ Position Normal หัวข้อและคำบรรยายภาพคงการจัดแนวตามแม่แบบ
 
 ตารางเปิด Wrap text ปิด Fit text และให้แถวขยายตามเนื้อหา ใช้การตัดคำไทยและอังกฤษตามขอบเขตคำ ไม่แทรกช่องว่างหรือ Shift+Enter เพื่อจัดแนว หากคำไม่พอดีให้ปรับความกว้างคอลัมน์ภายในขอบกระดาษ ตั้ง Do not check spelling or grammar เฉพาะเอกสาร และตรวจภาพเรนเดอร์ว่าช่องไฟปกติ ไม่มีคำแตกกลางคำ ข้อความไม่ล้นหรือถูกตัดก่อนส่ง
 
 `new_report.py` ใช้ค่าเหล่านี้กับสำเนาโดยอัตโนมัติ สำหรับเอกสารที่มีอยู่หรือหลังใส่เนื้อหาและอัปเดตฟิลด์ ใช้ `scripts/apply_text_layout.py --input input.docx --output final.docx` แล้วตรวจภาพเรนเดอร์ สคริปต์ไม่แก้ข้อความหรือปรับความกว้างคอลัมน์แทนการตรวจหน้า อ่านรายละเอียดใน [ข้อกำหนดการจัดข้อความ](skills/artifact-template-thai-report-format/references/text-layout.md)
 
 ข้อกำหนดการตัดคำไทยเพิ่มเติม: ให้ข้อความไหลต่อเนื่องจนใกล้ขอบขวาหรือขอบเซลล์ ตัดระหว่างคำอย่างเหมาะสม ไม่ย้ายวลีทั้งช่วงเมื่อยังมีพื้นที่ ห้ามแทรก Enter หรือ Shift+Enter เพื่อบังคับตัดบรรทัด คงช่องไฟปกติและ Scale 100% และตรวจผลใน Microsoft Word หลังจัดหน้า โดยรักษาการแบ่งย่อหน้าที่มีความหมาย
+
+ฟอนต์รายการสารบัญ TOC1–3: Latin และ Complex scripts ใช้ TH Sarabun New, Regular, 16 pt สี Automatic (ไม่กำหนดสีเฉพาะ) ไม่มีเส้นใต้หรือสีเส้นใต้ และปิด Effects ทั้งหมด ใช้กับสไตล์และข้อความสารบัญที่มีอยู่ หลังอัปเดตสารบัญให้ใช้ `apply_toc_format.py` อีกครั้งและตรวจผลใน Word

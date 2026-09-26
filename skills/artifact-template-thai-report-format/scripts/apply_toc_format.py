@@ -11,6 +11,33 @@ NS = {'w': W[1:-1]}
 
 def apply_parts(parts):
     config = json.loads((Path(__file__).resolve().parents[1] / 'references/toc-format.json').read_text(encoding='utf-8'))
+    def font_properties(parent):
+        rp = parent.find(W + 'rPr')
+        if rp is None:
+            rp = E.Element(W + 'rPr')
+            if parent.tag == W + 'r':
+                parent.insert(0, rp)
+            else:
+                parent.append(rp)
+        font = config['font']
+        # Explicit values prevent Heading/Hyperlink styles from restoring effects.
+        for child in list(rp):
+            if E.QName(child).localname in ('glow', 'shadow', 'reflection', 'textOutline', 'textFill', 'scene3d', 'props3d'):
+                rp.remove(child)
+        values = {
+            'rFonts': {key: font['name'] for key in ('ascii', 'hAnsi', 'eastAsia', 'cs')},
+            'sz': {'val': font['size_half_points']}, 'szCs': {'val': font['size_half_points']},
+            'color': {'val': font['color']}, 'u': {'val': font['underline']},
+            'vertAlign': {'val': 'baseline'}, 'effect': {'val': 'none'},
+        }
+        for name in ('b', 'bCs', 'i', 'iCs', 'strike', 'dstrike', 'outline', 'shadow',
+                     'emboss', 'imprint', 'smallCaps', 'caps', 'vanish', 'webHidden', 'specVanish'):
+            values[name] = {'val': 0}
+        for name, attrs in values.items():
+            for previous in rp.findall(W + name):
+                rp.remove(previous)
+            E.SubElement(rp, W + name, {W + k: str(v) for k, v in attrs.items()})
+
     def paragraph_properties(parent, values):
         pp = parent.find(W + 'pPr')
         if pp is None:
@@ -30,11 +57,15 @@ def apply_parts(parts):
         for automatic in st.findall(W + 'autoRedefine'):
             st.remove(automatic)
         paragraph_properties(st, values)
+        font_properties(st)
     doc = E.fromstring(parts['word/document.xml'])
     for p in doc.findall('.//w:p', NS):
         sid = p.find('w:pPr/w:pStyle', NS)
         if sid is not None and sid.get(W + 'val') in config['styles']:
             paragraph_properties(p, config['styles'][sid.get(W + 'val')])
+            font_properties(p.find(W + 'pPr'))
+            for run in p.findall('.//w:r', NS):
+                font_properties(run)
     # Fields can span runs; normalize only heading TOCs, never caption lists.
     def normalize(nodes, code):
         if re.match(r'^\s*TOC\b', code, re.I) and not re.search(r'\\[ca]\s', code, re.I):

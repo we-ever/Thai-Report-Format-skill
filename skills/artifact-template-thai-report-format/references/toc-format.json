@@ -20,10 +20,18 @@
   },
   "spacing": {
     "before": 0,
-    "after": 0,
+    "after": 120,
     "line": 240,
     "lineRule": "auto",
     "beforeAutospacing": 0,
     "afterAutospacing": 0
+  },
+  "font": {
+    "name": "TH Sarabun New",
+    "size_half_points": 32,
+    "style": "Regular",
+    "color": "auto",
+    "underline": "none",
+    "effects": false
   }
 }

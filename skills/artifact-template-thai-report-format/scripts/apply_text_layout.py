@@ -23,6 +23,16 @@ def ensure(parent, name):
         parent.insert(0, node)
     return node
 
+def paragraph_spacing(pp):
+    spacing = pp.find(W + 'spacing')
+    if spacing is None:
+        spacing = E.SubElement(pp, W + 'spacing')
+    spacing.set(W + 'after', '120')
+    spacing.set(W + 'afterAutospacing', '0')
+    spacing.attrib.pop(W + 'afterLines', None)
+    prop(pp, 'contextualSpacing', val=0)
+
+
 def run_defaults(rp):
     for name, value in [('w', 100), ('spacing', 0), ('position', 0), ('noProof', 1)]:
         prop(rp, name, val=value)
@@ -51,11 +61,13 @@ def apply_parts(parts):
     pp = ensure(ensure(defaults, 'pPrDefault'), 'pPr')
     prop(pp, 'jc', val='left')
     prop(pp, 'wordWrap', val=1)
+    paragraph_spacing(pp)
     for sid, st in style_map.items():
         run_defaults(ensure(st, 'rPr'))
         if st.get(W + 'type') == 'paragraph':
             pp = ensure(st, 'pPr')
             prop(pp, 'wordWrap', val=1)
+            paragraph_spacing(pp)
             if not protected(sid):
                 prop(pp, 'jc', val='left')
     parts['word/styles.xml'] = E.tostring(styles, xml_declaration=True, encoding='UTF-8', standalone=True)
@@ -63,6 +75,12 @@ def apply_parts(parts):
         if not re.fullmatch(r'word/(document|header\d+|footer\d+|footnotes|endnotes|comments)\.xml', name):
             continue
         root = E.fromstring(parts[name])
+        header_rows = set()
+        for table in root.findall('.//w:tbl', NS):
+            rows = table.findall('w:tr', NS)
+            marked = [row for row in rows if row.find('w:trPr/w:tblHeader', NS) is not None
+                      and row.find('w:trPr/w:tblHeader', NS).get(W + 'val', '1') not in ('0', 'false', 'off')]
+            header_rows.update(marked or rows[:1])
         for p in root.findall('.//w:p', NS):
             pp = ensure(p, 'pPr')
             st = pp.find(W + 'pStyle')
@@ -72,7 +90,14 @@ def apply_parts(parts):
             if in_cell or (in_body and not protected(sid) and pp.find(W + 'outlineLvl') is None):
                 prop(pp, 'jc', val='left')
             prop(pp, 'wordWrap', val=1)
+            paragraph_spacing(pp)
             run_defaults(ensure(pp, 'rPr'))
+            nearest_row = next((a for a in p.iterancestors() if a.tag == W + 'tr'), None)
+            if nearest_row in header_rows:
+                prop(pp, 'jc', val='center')
+                for rp in [ensure(pp, 'rPr')] + [ensure(r, 'rPr') for r in p.findall('.//w:r', NS)]:
+                    prop(rp, 'b', val=1)
+                    prop(rp, 'bCs', val=1)
         for r in root.findall('.//w:r', NS):
             rp = ensure(r, 'rPr')
             run_defaults(rp)
@@ -83,6 +108,7 @@ def apply_parts(parts):
                 lang.set(W + 'val', 'th-TH')
         for tc in root.findall('.//w:tc', NS):
             tcp = ensure(tc, 'tcPr')
+            prop(tcp, 'vAlign', val='top')
             prop(tcp, 'noWrap', val=0)
             prop(tcp, 'tcFitText', val=0)
         for height in root.findall('.//w:trHeight', NS):
