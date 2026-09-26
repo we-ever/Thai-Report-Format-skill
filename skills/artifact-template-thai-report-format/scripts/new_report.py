@@ -2,6 +2,7 @@
 import argparse
 from pathlib import Path
 from apply_toc_format import apply_parts
+from apply_text_layout import apply_parts as apply_text_layout
 from zipfile import ZipFile, ZIP_DEFLATED
 from lxml import etree as E
 W='{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
@@ -12,6 +13,7 @@ def create(output,number_captions=False):
  target.parent.mkdir(parents=True,exist_ok=True)
  with ZipFile(source) as z:parts={n:z.read(n) for n in z.namelist()}
  apply_parts(parts)
+ apply_text_layout(parts)
  root=E.fromstring(parts['word/document.xml']);stack=[];changed=0
  for node in root.iter():
   if node.tag==W+'fldChar':
